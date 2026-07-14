@@ -1,0 +1,93 @@
+<?php
+
+namespace App\Filament\Resources\FusionPBX\Devices\Schemas;
+
+use Carbon\Carbon;
+use Filament\Forms\Components\Placeholder;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Tabs;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
+
+class DeviceForm
+{
+    public static function configure(Schema $form): Schema
+    {
+        return $form->schema([
+
+            Tabs::make('Device')
+                ->columnSpanFull()
+                ->tabs([
+                    Tabs\Tab::make('Main')
+                        ->icon('heroicon-o-home')
+                        ->schema([
+                            Section::make('Main')
+                                ->columns(2)
+                                ->schema([
+                    TextInput::make('device_address')
+                        ->label('Address')->placeholder('address'),
+                    TextInput::make('device_label')
+                        ->label('Label')->placeholder('label'),
+                    TextInput::make('device_vendor')
+                        ->label('Vendor')->placeholder('vendor'),
+                    TextInput::make('device_location')
+                        ->label('Location')->placeholder('location'),
+                    TextInput::make('device_serial_number')
+                        ->label('Serial Number')->placeholder('serial number'),
+                    TextInput::make('device_model')
+                        ->label('Model')->placeholder('model'),
+                    TextInput::make('device_firmware_version')
+                        ->label('Firmware Version')->placeholder('firmware version'),
+                    Select::make('device_enabled')
+                        ->label('Enabled')
+                        ->native(false)->options(['true'=>'Yes','false'=>'No'])->default('false'),
+                    TextInput::make('device_enabled_date')
+                        ->label('Enabled Date')->placeholder('enabled date'),
+                    TextInput::make('device_template')
+                        ->label('Template')->placeholder('template'),
+                    TextInput::make('device_username')
+                        ->label('Username')->placeholder('username'),
+                    TextInput::make('device_password')
+                        ->label('Password')
+                        ->password()->revealable(),
+                    TextInput::make('device_uuid_alternate')
+                        ->label('Uuid Alternate')->placeholder('uuid alternate'),
+                    Textarea::make('device_description')
+                        ->label('Description')->rows(2)->columnSpanFull(),
+                    TextInput::make('device_provisioned_date')
+                        ->label('Provisioned Date')->placeholder('provisioned date'),
+                    TextInput::make('device_provisioned_method')
+                        ->label('Provisioned Method')->placeholder('provisioned method'),
+                    TextInput::make('device_provisioned_ip')
+                        ->label('Provisioned Ip')->placeholder('provisioned ip'),
+                    TextInput::make('device_provisioned_agent')
+                        ->label('Provisioned Agent')->placeholder('provisioned agent'),
+                                ]),
+                        ]),
+                ]),
+
+            Section::make('Record Info')
+                ->description('System identifiers — read only.')
+                ->icon('heroicon-o-information-circle')
+                ->collapsed()->columns(3)
+                ->schema([
+                    Placeholder::make('domain_uuid')
+                        ->label('UUID')
+                        ->content(fn ($record) => $record?->domain_uuid
+                            ? new HtmlString('<code style="font-family:monospace;font-size:0.72rem;color:#8b95ab;word-break:break-all;">'.$record->domain_uuid.'</code>')
+                            : 'Assigned on save'),
+                    Placeholder::make('insert_date')->label('Created')
+                        ->content(fn ($record) => $record?->insert_date
+                            ? Carbon::parse($record->insert_date)->format('M j, Y H:i') : '—'),
+                    Placeholder::make('update_date')->label('Last Updated')
+                        ->content(fn ($record) => $record?->update_date
+                            ? Carbon::parse($record->update_date)->diffForHumans() : '—'),
+                ])
+                ->visibleOn('edit'),
+        ]);
+    }
+}

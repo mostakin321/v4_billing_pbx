@@ -31,6 +31,30 @@ return [
     */
 
     'connections' => [
+        'fusion' => [
+            'driver' => env('FUSIONPBX_DB_CONNECTION', 'pgsql'),
+            'host' => env('FUSIONPBX_DB_HOST', '127.0.0.1'),
+            'port' => env('FUSIONPBX_DB_PORT', '5432'),
+            'database' => env('FUSIONPBX_DB_DATABASE', 'fusionpbx'),
+            'username' => env('FUSIONPBX_DB_USERNAME', 'fusionpbx'),
+            'password' => env('FUSIONPBX_DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => 'public',
+            'sslmode' => env('FUSIONPBX_DB_SSLMODE', 'prefer'),
+        ],
+        'fusionpbx' => [
+            'driver'   => 'pgsql',
+            'host'     => env('FUSIONPBX_DB_HOST', '127.0.0.1'),
+            'port'     => env('FUSIONPBX_DB_PORT', '5432'),
+            'database' => env('FUSIONPBX_DB_DATABASE', 'fusionpbx'),
+            'username' => env('FUSIONPBX_DB_USERNAME', 'fusionpbx'),
+            'password' => env('FUSIONPBX_DB_PASSWORD', ''),
+            'charset'  => 'utf8',
+            'prefix'   => '',
+            'schema'   => 'public',
+            'sslmode'  => env('FUSIONPBX_DB_SSLMODE', 'prefer'),
+        ],
 
         'sqlite' => [
             'driver' => 'sqlite',
