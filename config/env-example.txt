@@ -1,0 +1,6 @@
+ASTPP_DB_HOST=127.0.0.1
+ASTPP_DB_PORT=3306
+ASTPP_DB_DATABASE=astpp
+ASTPP_DB_USERNAME=astppuser
+ASTPP_DB_PASSWORD="your_actual_astpp_password"
+ASTPP_CONFIG_PATH=/var/lib/astpp/astpp-config.conf
