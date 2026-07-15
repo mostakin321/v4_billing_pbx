@@ -1,0 +1,59 @@
+{
+  "general": {
+    "log_level": 7,
+    "poster_attempts": 1,
+    "caching_delay": "1s"
+  },
+  "listen": {
+    "rpc_json": ":2012",
+    "rpc_gob": ":2013",
+    "http": ":2080"
+  },
+  "data_db": {
+    "db_type": "redis",
+    "db_port": 6379,
+    "db_name": "10"
+  },
+  "stor_db": {
+    "db_password": "CHANGE_ME"
+  },
+  "resources": {
+    "enabled": true
+  },
+  "rals": {
+    "enabled": true
+  },
+  "schedulers": {
+    "enabled": true
+  },
+  "cdrs": {
+    "enabled": true,
+    "chargers_conns": [
+      "*internal"
+    ],
+    "rals_conns": [
+      "*internal"
+    ]
+  },
+  "attributes": {
+    "enabled": true
+  },
+  "stats": {
+    "enabled": true
+  },
+  "thresholds": {
+    "enabled": true
+  },
+  "chargers": {
+    "enabled": true
+  },
+  "routes": {
+    "enabled": true
+  },
+  "apiers": {
+    "enabled": true,
+    "scheduler_conns": [
+      "*internal"
+    ]
+  }
+}
