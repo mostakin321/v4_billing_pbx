@@ -52,7 +52,10 @@ class OutboundRouteEditForm
                             ->label('Dialplan XML')
                             ->rows(5)->columnSpanFull()
                             ->helperText('Raw XML — auto-generated, edit with care.')
-                            ->fontFamily(\Filament\Support\Enums\FontFamily::Mono),
+                            ->extraInputAttributes([
+                                'class' => 'font-mono text-sm',
+                                'spellcheck' => 'false',
+                            ]),
                         Textarea::make('dialplan_description')
                             ->label('Description')->rows(2)->columnSpanFull(),
                     ]),
