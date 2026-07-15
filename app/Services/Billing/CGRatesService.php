@@ -71,6 +71,22 @@ class CGRatesService
         }
     }
 
+    public function setBalance(Account $account, float $balance): bool
+    {
+        if ($balance < 0) {
+            throw new \InvalidArgumentException(
+                'Prepaid balance cannot be negative.'
+            );
+        }
+
+        return $this->client->setMonetaryBalance(
+            (string) config('cgrates.tenant', 'cgrates.org'),
+            (string) $account->number,
+            round($balance, 6),
+            (string) config('cgrates.balance_id', '1'),
+        );
+    }
+
     public function pullBalanceToAstpp(Account $account): ?float
     {
         $balance = $this->getBalance($account);
