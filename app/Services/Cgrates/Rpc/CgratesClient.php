@@ -45,21 +45,105 @@ class CgratesClient
         return true;
     }
 
-    public function getAccountBalance(string $tenant, string $account): array
-    {
-        return $this->call('APIerSv2.GetAccount', [
+    public function getAccounts(
+        string $tenant,
+        array $accountIds = [],
+    ): array {
+        $result = $this->call('ApierV1.GetAccounts', [[
             'Tenant' => $tenant,
-            'Account' => $account,
-        ]);
+            'AccountIds' => array_values($accountIds),
+        ]]);
+
+        return is_array($result) ? $result : [];
     }
 
-    public function setAccountBalance(string $tenant, string $account, float $balance): bool
-    {
-        $this->call('APIerSv2.SetAccount', [
+    public function getAccount(
+        string $tenant,
+        string $account,
+    ): ?array {
+        $accounts = $this->getAccounts($tenant, [$account]);
+
+        foreach ($accounts as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $id = (string) ($item['Id'] ?? $item['ID'] ?? '');
+
+            if (
+                $id === $account ||
+                str_ends_with($id, ':'.$account)
+            ) {
+                return $item;
+            }
+        }
+
+        return null;
+    }
+
+    public function getMonetaryBalance(
+        string $tenant,
+        string $account,
+        string $balanceId = '1',
+    ): ?float {
+        $accountData = $this->getAccount($tenant, $account);
+
+        if (! $accountData) {
+            return null;
+        }
+
+        $balanceMap = $accountData['BalanceMap'] ?? [];
+
+        $balances =
+            $balanceMap['*monetary*out']
+            ?? $balanceMap['*monetary']
+            ?? [];
+
+        if (! is_array($balances)) {
+            return null;
+        }
+
+        foreach ($balances as $balance) {
+            if (! is_array($balance)) {
+                continue;
+            }
+
+            $id = (string) (
+                $balance['Id']
+                ?? $balance['ID']
+                ?? ''
+            );
+
+            $disabled = (bool) (
+                $balance['Disabled']
+                ?? false
+            );
+
+            if ($id === $balanceId && ! $disabled) {
+                return (float) ($balance['Value'] ?? 0);
+            }
+        }
+
+        return null;
+    }
+
+    public function setMonetaryBalance(
+        string $tenant,
+        string $account,
+        float $value,
+        string $balanceId = '1',
+    ): bool {
+        $result = $this->call('ApierV1.SetBalance', [[
             'Tenant' => $tenant,
             'Account' => $account,
-            'BalanceMap' => ['*default' => [['Value' => $balance]]],
-        ]);
-        return true;
+            'BalanceType' => '*monetary',
+            'Action' => '*set',
+            'Value' => round($value, 6),
+            'Balance' => [
+                'ID' => $balanceId,
+            ],
+        ]]);
+
+        return $result === 'OK' || $result === true;
     }
 }
