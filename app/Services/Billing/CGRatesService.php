@@ -36,10 +36,11 @@ class CGRatesService
         $tenant = config('cgrates.tenant', 'cgrates.org');
 
         try {
-            $this->client->setAccountBalance(
+            $this->client->setMonetaryBalance(
                 $tenant,
                 (string) $account->number,
-                (float) $account->balance
+                (float) $account->balance,
+                (string) config('cgrates.balance_id', '1'),
             );
             return true;
         } catch (\Throwable $e) {
@@ -56,9 +57,11 @@ class CGRatesService
         $tenant = config('cgrates.tenant', 'cgrates.org');
 
         try {
-            $result = $this->client->getAccountBalance($tenant, (string) $account->number);
-            $balance = data_get($result, 'BalanceMap.*default.0.Value');
-            return $balance !== null ? (float) $balance : null;
+            return $this->client->getMonetaryBalance(
+                $tenant,
+                (string) $account->number,
+                (string) config('cgrates.balance_id', '1'),
+            );
         } catch (\Throwable $e) {
             Log::warning('CGRateS balance fetch failed', [
                 'account_id' => $account->id,
@@ -66,6 +69,21 @@ class CGRatesService
             ]);
             return null;
         }
+    }
+
+    public function pullBalanceToAstpp(Account $account): ?float
+    {
+        $balance = $this->getBalance($account);
+
+        if ($balance === null) {
+            return null;
+        }
+
+        $account->forceFill([
+            'balance' => $balance,
+        ])->saveQuietly();
+
+        return $balance;
     }
 
     public function removeAccount(Account $account): bool
