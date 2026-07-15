@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Astpp\AccountResource\Schemas;
 use App\Models\Astpp\Account;
 use App\Models\Astpp\Pricelist;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\DateTimePicker;
@@ -11,6 +12,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -25,12 +28,105 @@ class AccountForm
                 Tabs\Tab::make('Basic Info')->icon('heroicon-o-user')->schema([
                     Section::make('Account Details')->columns(3)->schema([
 
-                        Select::make('type')->label('Account Type')
-                            ->options([0=>'Customer', 3=>'Reseller', 2=>'Provider', -1=>'Admin'])
-                            ->default(0)->required()->live(),
+                        Hidden::make('type')
+                            ->default(Account::TYPE_CUSTOMER),
 
-                        TextInput::make('number')->label('Account Number *')
-                            ->required()->maxLength(20)->placeholder('10001'),
+                        Select::make('fusion_user_uuid')
+                            ->label('Account Type')
+                            ->placeholder('Select Account / User')
+                            ->options(fn (): array => DB::connection('fusion')
+                                ->table('v_users')
+                                ->where('user_enabled', 1)
+                                ->orderBy('username')
+                                ->pluck('username', 'user_uuid')
+                                ->all())
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function (?string $state, Set $set): void {
+                                $set('number', null);
+                                $set('extension_uuid', null);
+                                $set('domain_uuid', null);
+
+                                if (blank($state)) {
+                                    return;
+                                }
+
+                                $user = DB::connection('fusion')
+                                    ->table('v_users')
+                                    ->where('user_uuid', $state)
+                                    ->first();
+
+                                if (! $user) {
+                                    return;
+                                }
+
+                                $set('domain_uuid', $user->domain_uuid);
+
+                                if (! empty($user->user_email)) {
+                                    $set('email', $user->user_email);
+                                }
+                            }),
+
+                        Select::make('number')
+                            ->label('Account Number')
+                            ->placeholder('Select Account Number')
+                            ->options(function (Get $get): array {
+                                $userUuid = $get('fusion_user_uuid');
+
+                                if (blank($userUuid)) {
+                                    return [];
+                                }
+
+                                $domainUuid = DB::connection('fusion')
+                                    ->table('v_users')
+                                    ->where('user_uuid', $userUuid)
+                                    ->value('domain_uuid');
+
+                                if (blank($domainUuid)) {
+                                    return [];
+                                }
+
+                                return DB::connection('fusion')
+                                    ->table('v_extensions')
+                                    ->where('domain_uuid', $domainUuid)
+                                    ->whereRaw(
+                                        "LOWER(CAST(enabled AS TEXT)) IN ('1', 'true', 'yes')"
+                                    )
+                                    ->orderBy('extension')
+                                    ->pluck('extension', 'extension')
+                                    ->all();
+                            })
+                            ->disabled(fn (Get $get): bool =>
+                                blank($get('fusion_user_uuid'))
+                            )
+                            ->searchable()
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(
+                                function (?string $state, Get $get, Set $set): void {
+                                    $set('extension_uuid', null);
+
+                                    if (blank($state)) {
+                                        return;
+                                    }
+
+                                    $extensionUuid = DB::connection('fusion')
+                                        ->table('v_extensions')
+                                        ->where(
+                                            'domain_uuid',
+                                            $get('domain_uuid')
+                                        )
+                                        ->where('extension', $state)
+                                        ->value('extension_uuid');
+
+                                    $set('extension_uuid', $extensionUuid);
+                                }
+                            ),
+
+                        Hidden::make('domain_uuid'),
+                        Hidden::make('extension_uuid'),
 
                         Select::make('reseller_id')->label('Reseller')
                             ->options(fn() => Account::where('type',3)
