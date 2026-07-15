@@ -104,6 +104,28 @@ return [
             ]) : [],
         ],
 
+        'cgrates' => [
+            'driver' => 'mysql',
+            'url' => env('CGRATES_DATABASE_URL'),
+            'host' => env('CGRATES_DB_HOST', '127.0.0.1'),
+            'port' => env('CGRATES_DB_PORT', '3306'),
+            'database' => env('CGRATES_DB_DATABASE', 'cgrates'),
+            'username' => env('CGRATES_DB_USERNAME', 'cgrates'),
+            'password' => env('CGRATES_DB_PASSWORD', ''),
+            'unix_socket' => env('CGRATES_DB_SOCKET', ''),
+            'charset' => env('CGRATES_DB_CHARSET', 'utf8mb4'),
+            'collation' => env('CGRATES_DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql')
+                ? array_filter([
+                    PDO::ATTR_TIMEOUT => 5,
+                ])
+                : [],
+        ],
+
         'kazitel' => ['driver'=>'mysql','host'=>'127.0.0.1','port'=>'3306','database'=>'kazitel','username'=>'kazitel','password'=>'kazitel123','charset'=>'utf8mb4','collation'=>'utf8mb4_unicode_ci','prefix'=>'','strict'=>true,'engine'=>null],
         'mariadb' => [
             'driver' => 'mariadb',
