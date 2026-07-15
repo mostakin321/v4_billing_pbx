@@ -10,6 +10,7 @@ use App\Filament\Resources\FusionPBX\Gateways\GatewayResource;
 use App\Filament\Resources\FusionPBX\IvrMenus\IvrMenuResource;
 use App\Filament\Resources\FusionPBX\RingGroups\RingGroupResource;
 use App\Filament\Resources\FusionPBX\Voicemails\VoicemailResource;
+use App\Filament\Widgets\PbxStatsOverview;
 use App\Models\FusionPBX\CallCenterQueue;
 use App\Models\FusionPBX\Destination;
 use App\Models\FusionPBX\Dialplan;
@@ -25,32 +26,27 @@ use Filament\Pages\Page;
 class PbxDashboard extends Page
 {
     protected static ?string $navigationLabel = 'PBX Dashboard';
-
     protected static ?int $navigationSort = -3;
-
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-home';
-
     protected static string $routePath = 'pbx';
 
-    public function getView(): string { return 'filament.pages.pbx-dashboard'; }
+    public function getView(): string
+    {
+        return 'filament.pages.pbx-dashboard';
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            PbxStatsOverview::class,
+        ];
+    }
 
     protected function getViewData(): array
     {
         $today = Carbon::today();
 
         return [
-            'stats' => [
-                'extensions' => Extension::count(),
-                'users' => \App\Models\FusionPBX\User::count(),
-                'dialplans' => Dialplan::count(),
-                'destinations' => Destination::count(),
-                'gateways' => Gateway::count(),
-                'ivr_menus' => IvrMenu::count(),
-                'ring_groups' => RingGroup::count(),
-                'voicemails' => Voicemail::count(),
-                'cc_queues' => CallCenterQueue::count(),
-                'calls_today' => XmlCdr::where('start_stamp', '>=', $today)->count(),
-            ],
             'links' => [
                 [
                     'label' => 'Extensions',

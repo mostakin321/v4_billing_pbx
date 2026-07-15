@@ -2,6 +2,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\FusionPBX\Gateway;
+use App\Observers\FusionPBX\GatewayObserver;
 use App\Services\Billing\BillingService;
 use App\Services\Billing\UserBillingService;
 use App\Services\Billing\CGRatesService;
@@ -19,6 +21,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        Gateway::observe(GatewayObserver::class);
     }
 }
