@@ -47,8 +47,15 @@ class AccountForm
                         TextInput::make('company_name')->label('Company')->placeholder('ACME Ltd'),
                         TextInput::make('email')->email()->placeholder('user@example.com'),
                         TextInput::make('notification_email')->label('Notification Email')->email()->nullable(),
-                        TextInput::make('telephone_1')->label('Phone 1')->placeholder('+880...'),
-                        TextInput::make('telephone_2')->label('Phone 2')->nullable(),
+                        TextInput::make('telephone_1')
+                            ->label('Phone 1')
+                            ->placeholder('+880...')
+                            ->default('')
+                            ->dehydrateStateUsing(fn ($state) => $state ?? ''),
+                        TextInput::make('telephone_2')
+                            ->label('Phone 2')
+                            ->default('')
+                            ->dehydrateStateUsing(fn ($state) => $state ?? ''),
                     ]),
 
                     Section::make('Address')->columns(3)->schema([

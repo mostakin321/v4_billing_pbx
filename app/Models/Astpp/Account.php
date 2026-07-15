@@ -53,6 +53,70 @@ class Account extends BaseAstppModel
         'generate_invoice' => 'integer',
     ];
 
+    /**
+     * ASTPP's legacy schema marks nearly every column NOT NULL with no
+     * default. Rather than patching every form field individually, fill
+     * in safe defaults for any null attribute before saving.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function (self $account) {
+            $stringDefaults = [
+                'reference', 'password', 'first_name', 'last_name',
+                'company_name', 'address_1', 'address_2', 'postal_code',
+                'province', 'city', 'telephone_1', 'telephone_2', 'email',
+                'notification_email', 'notify_email', 'invoice_note', 'pin',
+                'charge_per_min', 'std_cid_translation', 'did_cid_translation',
+                'number', 'dialed_modify',
+            ];
+
+            $intDefaults = [
+                'pricelist_id', 'paypal_permission', 'status', 'sweep_id',
+                'posttoexternal', 'country_id', 'language_id', 'currency_id',
+                'maxchannels', 'cps', 'timezone_id', 'inuse', 'deleted',
+                'notify_flag', 'commission_rate', 'invoice_day',
+                'invoice_interval', 'validfordays', 'pass_link_status',
+                'local_call', 'is_recording', 'allow_ip_management',
+                'permission_id', 'notifications', 'is_distributor',
+                'generate_invoice',
+            ];
+
+            $decimalDefaults = [
+                'credit_limit', 'balance', 'notify_credit_limit', 'local_call_cost',
+            ];
+
+            $datetimeDefaults = [
+                'creation', 'last_bill_date', 'first_used', 'expiry', 'deleted_date',
+            ];
+
+            foreach ($stringDefaults as $field) {
+                if (is_null($account->{$field})) {
+                    $account->{$field} = '';
+                }
+            }
+
+            foreach ($intDefaults as $field) {
+                if (is_null($account->{$field})) {
+                    $account->{$field} = 0;
+                }
+            }
+
+            foreach ($decimalDefaults as $field) {
+                if (is_null($account->{$field})) {
+                    $account->{$field} = 0;
+                }
+            }
+
+            foreach ($datetimeDefaults as $field) {
+                if (is_null($account->{$field})) {
+                    $account->{$field} = now();
+                }
+            }
+        });
+    }
+
     public const TYPE_ADMIN = -1;
     public const TYPE_CUSTOMER = 0;
     public const TYPE_RESELLER = 1;

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\FusionPBX\Extensions\Schemas;
 
+use App\Models\FusionPBX\User;
 use Carbon\Carbon;
 use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Components\Section;
@@ -47,6 +48,21 @@ class ExtensionForm
                                         ->label('User Context')
                                         ->placeholder('default'),
                                 ]),
+                            Section::make('Assigned Users')
+                                ->description('Users who can access this extension in the softphone / mobile app.')
+                                ->icon('heroicon-o-user-group')
+                                ->columns(1)
+                                ->schema([
+                                    Select::make('users')
+                                        ->label('Users')
+                                        ->multiple()
+                                        ->native(false)
+                                        ->searchable()
+                                        ->options(fn () => User::pluck('username', 'user_uuid'))
+                                        ->dehydrated(false)
+                                        ->helperText('Assign users to this extension.'),
+                                ]),
+
                             Section::make('Status')
                                 ->columns(2)
                                 ->schema([
