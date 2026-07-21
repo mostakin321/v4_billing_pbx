@@ -126,7 +126,6 @@ return [
                 : [],
         ],
 
-        'kazitel' => ['driver'=>'mysql','host'=>'127.0.0.1','port'=>'3306','database'=>'kazitel','username'=>'kazitel','password'=>'kazitel123','charset'=>'utf8mb4','collation'=>'utf8mb4_unicode_ci','prefix'=>'','strict'=>true,'engine'=>null],
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

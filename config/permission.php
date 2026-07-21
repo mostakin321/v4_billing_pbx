@@ -40,7 +40,7 @@ return [
          * default value but you may easily change it to any table you like.
          */
 
-        'roles' => 'roles',
+        'roles' => 'laravel_roles',
 
         /*
          * When using the "HasPermissions" trait from this package, we need to know which
@@ -48,7 +48,7 @@ return [
          * default value but you may easily change it to any table you like.
          */
 
-        'permissions' => 'permissions',
+        'permissions' => 'laravel_permissions',
 
         /*
          * When using the "HasPermissions" trait from this package, we need to know which
